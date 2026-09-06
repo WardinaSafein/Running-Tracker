@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Climb to 15K</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0F1512;
+    --surface:#182420;
+    --surface2:#1F2E28;
+    --line: rgba(240,237,228,0.09);
+    --amber:#E8A33D;
+    --amber-dim: rgba(232,163,61,0.16);
+    --green:#7FAE7E;
+    --green-dim: rgba(127,174,126,0.14);
+    --text:#F0EDE4;
+    --muted:#8FA096;
+    --muted2:#5E6E66;
+    --red:#D97757;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .wrap{max-width:640px;margin:0 auto;padding:0 0 60px;}
+
+  /* Header */
+  header{
+    padding:32px 20px 24px;
+    position:relative;
+    overflow:hidden;
+    border-bottom:1px solid var(--line);
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--amber);
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:34px;
+    line-height:1.08;
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+  }
+  h1 em{font-style:italic;font-weight:400;color:var(--amber);}
+  .sub{color:var(--muted);font-size:14px;line-height:1.5;max-width:46ch;}
+  .countdown-row{
+    display:flex;
+    gap:10px;
+    margin-top:20px;
+  }
+  .count-card{
+    flex:1;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:12px 10px;
+    text-align:center;
+  }
+  .count-num{
+    font-family:'Fraunces',serif;
+    font-size:26px;
+    font-weight:600;
+    color:var(--amber);
+    line-height:1;
+  }
+  .count-lbl{
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted2);
+    margin-top:4px;
+  }
+
+  /* Elevation profile signature */
+  .profile-wrap{
+    padding:22px 20px 6px;
+    border-bottom:1px solid var(--line);
+  }
+  .profile-title{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    color:var(--muted2);
+    margin-bottom:10px;
+    font-family:'JetBrains Mono',monospace;
+  }
+  svg.profile{width:100%;height:auto;display:block;}
+
+  /* Tabs */
+  .tabs{
+    display:flex;
+    gap:4px;
+    padding:14px 16px;
+    position:sticky;
+    top:0;
+    background:var(--bg);
+    z-index:10;
+    border-bottom:1px solid var(--line);
+  }
+  .tab{
+    flex:1;
+    text-align:center;
+    padding:10px 8px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--muted);
+    cursor:pointer;
+    background:transparent;
+    border:none;
+    font-family:'Inter',sans-serif;
+  }
+  .tab.active{background:var(--surface2);color:var(--amber);}
+
+  section.panel{display:none;padding:18px 20px 8px;}
+  section.panel.active{display:block;}
+
+  /* Week cards */
+  .week{
+    margin-bottom:16px;
+    border:1px solid var(--line);
+    border-radius:14px;
+    overflow:hidden;
+    background:var(--surface);
+  }
+  .week-head{
+    padding:14px 16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    cursor:pointer;
+  }
+  .week-head-left{display:flex;flex-direction:column;gap:2px;}
+  .week-num{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--amber);
+    letter-spacing:0.06em;
+  }
+  .week-title{font-family:'Fraunces',serif;font-size:17px;font-weight:600;}
+  .week-range{font-size:12px;color:var(--muted2);}
+  .week-progress{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--muted);
+    white-space:nowrap;
+  }
+  .chevron{transition:transform .2s ease;color:var(--muted2);margin-left:8px;}
+  .week.open .chevron{transform:rotate(180deg);}
+  .week-body{display:none;border-top:1px solid var(--line);}
+  .week.open .week-body{display:block;}
+
+  .session{
+    padding:14px 16px;
+    display:flex;
+    gap:12px;
+    border-bottom:1px solid var(--line);
+    align-items:flex-start;
+  }
+  .session:last-child{border-bottom:none;}
+  .check{
+    width:24px;height:24px;flex:0 0 24px;
+    border-radius:50%;
+    border:2px solid var(--muted2);
+    margin-top:2px;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:all .15s ease;
+  }
+  .check svg{opacity:0;width:13px;height:13px;}
+  .session.done .check{background:var(--green);border-color:var(--green);}
+  .session.done .check svg{opacity:1;}
+  .session.done .s-title{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--muted2);}
+  .s-body{flex:1;min-width:0;}
+  .s-meta{
+    display:flex;gap:8px;align-items:center;margin-bottom:3px;flex-wrap:wrap;
+  }
+  .s-day{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted2);}
+  .s-tag{
+    font-size:10px;text-transform:uppercase;letter-spacing:0.05em;
+    padding:2px 7px;border-radius:20px;font-weight:600;
+  }
+  .tag-interval{background:var(--amber-dim);color:var(--amber);}
+  .tag-easy{background:var(--green-dim);color:var(--green);}
+  .tag-long{background:rgba(217,119,87,0.16);color:var(--red);}
+  .tag-rest{background:rgba(255,255,255,0.06);color:var(--muted);}
+  .tag-race{background:var(--amber);color:#1A1004;}
+  .s-title{font-weight:600;font-size:14.5px;margin-bottom:3px;}
+  .s-detail{font-size:12.5px;color:var(--muted);line-height:1.5;}
+  .s-log{
+    margin-top:8px;display:none;gap:6px;
+  }
+  .session.done .s-log{display:flex;}
+  .s-log input{
+    width:100%;
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:6px;
+    color:var(--text);
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    padding:6px 8px;
+  }
+  .s-log input::placeholder{color:var(--muted2);}
+
+  /* Meals */
+  .meal-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:16px 18px;
+    margin-bottom:14px;
+  }
+  .meal-eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    color:var(--amber);
+    margin-bottom:6px;
+  }
+  .meal-title{font-family:'Fraunces',serif;font-size:18px;font-weight:600;margin-bottom:8px;}
+  .meal-card ul{margin:0;padding-left:18px;}
+  .meal-card li{font-size:13.5px;color:var(--text);line-height:1.65;margin-bottom:4px;}
+  .meal-card li b{color:var(--amber);font-weight:600;}
+  .meal-note{
+    margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);
+    font-size:12.5px;color:var(--muted);line-height:1.6;
+  }
+
+  /* Progress */
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+  .stat-card{
+    background:var(--surface);border:1px solid var(--line);border-radius:12px;
+    padding:16px;
+  }
+  .stat-num{font-family:'Fraunces',serif;font-size:28px;font-weight:600;color:var(--amber);line-height:1;}
+  .stat-lbl{font-size:11.5px;color:var(--muted);margin-top:6px;}
+  .bar-outer{
+    height:8px;background:var(--surface2);border-radius:5px;overflow:hidden;margin-top:8px;
+  }
+  .bar-inner{height:100%;background:linear-gradient(90deg,var(--green),var(--amber));border-radius:5px;transition:width .3s ease;}
+
+  .reset-row{margin-top:24px;text-align:center;}
+  .reset-btn{
+    background:none;border:1px solid var(--line);color:var(--muted);
+    font-size:12px;padding:8px 14px;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;
+  }
+
+  .footnote{
+    padding:18px 20px 30px;font-size:12px;color:var(--muted2);line-height:1.6;
+  }
+
+  .toast{
+    position:fixed;
+    left:50%;
+    bottom:24px;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--surface2);
+    border:1px solid var(--line);
+    color:var(--text);
+    padding:9px 16px;
+    border-radius:20px;
+    font-size:12.5px;
+    display:flex;
+    align-items:center;
+    gap:7px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+    z-index:50;
+    box-shadow:0 6px 20px rgba(0,0,0,0.4);
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast .dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex:0 0 7px;}
+  .toast.error .dot{background:var(--red);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Klang Valley &middot; Marathon Training</div>
+    <h1>Walker to <em>Finisher</em></h1>
+    <div class="sub">Your run-walk build from Aug 28 to race day, based on the base fitness you already have — the 6–7km walks and hill hikes.</div>
+    <div class="countdown-row">
+      <div class="count-card"><div class="count-num" id="cd-days">--</div><div class="count-lbl">Days to go</div></div>
+      <div class="count-card"><div class="count-num" id="cd-weeks">--</div><div class="count-lbl">Weeks</div></div>
+      <div class="count-card"><div class="count-num">15</div><div class="count-lbl">Race KM</div></div>
+    </div>
+  </header>
+
+  <div class="profile-wrap">
+    <div class="profile-title">Long-day distance, week by week</div>
+    <svg class="profile" viewBox="0 0 600 110" preserveAspectRatio="none" id="profile-svg"></svg>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="schedule">Schedule</button>
+    <button class="tab" data-tab="meals">Meals</button>
+    <button class="tab" data-tab="progress">Progress</button>
+  </div>
+
+  <section class="panel active" id="panel-schedule">
+    <div id="weeks"></div>
+  </section>
+
+  <section class="panel" id="panel-meals">
+
+    <div class="meal-card">
+      <div class="meal-eyebrow">Every day</div>
+      <div class="meal-title">Your baseline plate</div>
+      <ul>
+        <li><b>Carbs:</b> rice, bee hoon, oats, wholemeal bread, sweet potato — your main fuel, don't cut these while training.</li>
+        <li><b>Protein:</b> chicken, fish, eggs, tofu/tempeh, dhal — aim for a palm-sized portion at each main meal for recovery.</li>
+        <li><b>Veg + fruit:</b> ulam, stir-fried greens, banana, papaya — banana especially good around training days for potassium.</li>
+        <li><b>Fluids:</b> 2–3L water daily as a baseline, more on training days. KL humidity means you lose more than you think.</li>
+      </ul>
+    </div>
+
+    <div class="meal-card">
+      <div class="meal-eyebrow">Night before / morning of a long session</div>
+      <div class="meal-title">Loading up</div>
+      <ul>
+        <li>Keep the dinner before <b>simple and carb-forward</b> — plain rice + grilled chicken/fish, or noodle soup. Go easy on oily, heavily spiced, or very fibrous dishes so your gut isn't working hard the next morning.</li>
+        <li>2–3 hrs before: something familiar and easy to digest — <b>toast with kaya + banana</b>, plain oats, or roti with a bit of honey. Avoid trying new foods before a long effort.</li>
+        <li>Sip water steadily from waking, don't chug right before you start.</li>
+      </ul>
+    </div>
+
+    <div class="meal-card">
+      <div class="meal-eyebrow">Within 45 min after a long session</div>
+      <div class="meal-title">Recovery window</div>
+      <ul>
+        <li>Pair <b>carbs + protein</b> — milo + a sandwich, or nasi + ayam + veg, or a banana + a boiled egg if you're not ready for a full meal yet.</li>
+        <li>Rehydrate with water; if the session ran long or you sweated heavily, coconut water or an isotonic drink helps replace electrolytes better than water alone.</li>
+      </ul>
+    </div>
+
+    <div class="meal-card">
+      <div class="meal-eyebrow">Final 3 days before race</div>
+      <div class="meal-title">Race week</div>
+      <ul>
+        <li>Shift toward <b>more carbs, slightly less fibre</b> — more rice/noodles/bread, lighter on raw veg and very spicy sambal, to keep your stomach calm on race morning.</li>
+        <li>Don't restrict food to "feel light" — your body needs the fuel stored up. This is the one week volume goes up, not down.</li>
+        <li>Stay very consistent with hydration — don't try to "catch up" all at once the day before.</li>
+      </ul>
+    </div>
+
+    <div class="meal-card">
+      <div class="meal-eyebrow">Race morning &middot; Oct 18</div>
+      <div class="meal-title">Before the gun</div>
+      <ul>
+        <li>2–3 hrs before: a carb meal you've already tested in training — toast + banana + honey, or plain oats. Nothing new, nothing heavy, nothing fried.</li>
+        <li>Small sips of water/isotonic in the last hour, stop chugging ~15 min before start.</li>
+        <li>During the run: sip at water stations rather than skipping — even a few mouthfuls each stop adds up over 15km, especially in KL heat.</li>
+      </ul>
+      <div class="meal-note">This is general guidance, not a strict plan — adjust portions and timing to what actually sits well with you. Let me know if you'd rather I tailor this around halal, vegetarian, or other preferences.</div>
+    </div>
+
+  </section>
+
+  <section class="panel" id="panel-progress">
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-num" id="stat-done">0</div>
+        <div class="stat-lbl">Sessions completed</div>
+        <div class="bar-outer"><div class="bar-inner" id="bar-done" style="width:0%"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-km">0</div>
+        <div class="stat-lbl">Planned km logged</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-streak">0</div>
+        <div class="stat-lbl">Weeks fully on track</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-next">–</div>
+        <div class="stat-lbl">Next session</div>
+      </div>
+    </div>
+    <div id="storage-banner" style="display:none;background:rgba(217,119,87,0.12);border:1px solid rgba(217,119,87,0.35);border-radius:12px;padding:14px 16px;margin-bottom:16px;">
+      <div style="font-weight:600;font-size:13.5px;margin-bottom:5px;color:var(--red);">Automatic saving isn't working here</div>
+      <div style="font-size:12.5px;color:var(--muted);line-height:1.6;">Your progress is kept while this window is open, but won't survive closing it. Use the backup code below to save and restore your progress manually.</div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:18px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:0.1em;color:var(--amber);margin-bottom:6px;">Backup</div>
+      <div style="font-family:'Fraunces',serif;font-size:17px;font-weight:600;margin-bottom:6px;">Your progress code</div>
+      <div style="font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:10px;">Copy this and keep it in your notes. If your progress ever resets, paste it back here and tap Restore.</div>
+      <textarea id="backup-code" rows="3" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;padding:8px;resize:vertical;"></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button id="copy-backup" style="flex:1;background:var(--amber);border:none;color:#1A1004;font-weight:600;font-size:13px;padding:10px;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;">Copy code</button>
+        <button id="restore-backup" style="flex:1;background:transparent;border:1px solid var(--line);color:var(--text);font-weight:600;font-size:13px;padding:10px;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;">Restore</button>
+      </div>
+    </div>
+
+    <div class="reset-row">
+      <button class="reset-btn" id="reset-btn">Reset all logged progress</button>
+    </div>
+  </section>
+
+  <div class="footnote">Tap the circle on any session to mark it done — that's what fills in your progress tab. Your log saves automatically; watch for the confirmation at the bottom of the screen.</div>
+</div>
+
+<div class="toast" id="toast"><div class="dot"></div><span id="toast-text">Saved</span></div>
+
+<script>
+const RACE_DATE = new Date('2026-10-18T07:00:00+08:00');
+
+const WEEKS = [
+  { id:'w0', label:'Orientation', range:'Aug 28 – 30', peak:4, sessions:[
+    {id:'w0-1', date:'Fri, Aug 28', tag:'easy', tagLabel:'Easy', title:'Easy Start Walk', dist:'~2.5 km / 30 min', detail:'Nothing fancy — a comfortable brisk walk to kick off the routine.'},
+    {id:'w0-2', date:'Sat, Aug 29', tag:'interval', tagLabel:'Run-walk', title:'Run-Walk Test', dist:'4 km', detail:'Run 1 min / walk 2 min, repeat to 4km. Just notice how the running minutes feel — don\'t chase pace.'},
+    {id:'w0-3', date:'Sun, Aug 30', tag:'rest', tagLabel:'Optional', title:'Rest or Easy Hike', dist:'—', detail:'Body\'s adjusting. A relaxed hike or full rest both work fine here.'},
+  ]},
+  { id:'w1', label:'Week 1', range:'Aug 31 – Sep 6', peak:6, sessions:[
+    {id:'w1-1', date:'Tue, Sep 1', tag:'interval', tagLabel:'Run-walk', title:'Interval Run-Walk', dist:'30 min', detail:'Run 1 min / walk 2 min, flat route, 30 min total.'},
+    {id:'w1-2', date:'Thu, Sep 3', tag:'easy', tagLabel:'Easy', title:'Easy Walk', dist:'30–40 min', detail:'Brisk pace, no running — let Saturday\'s effort settle.'},
+    {id:'w1-3', date:'Sat, Sep 5', tag:'long', tagLabel:'Long', title:'Long Run-Walk', dist:'6 km', detail:'Same 1min/2min pattern, just further. Hydrate well — KL heat adds up fast.'},
+    {id:'w1-4', date:'Sun, Sep 6', tag:'rest', tagLabel:'Optional', title:'Optional Hike', dist:'—', detail:'Legs feeling good? A gentle hike is great cross-training. Otherwise rest.'},
+  ]},
+  { id:'w2', label:'Week 2', range:'Sep 7 – 13', peak:7.5, sessions:[
+    {id:'w2-1', date:'Tue, Sep 8', tag:'interval', tagLabel:'Run-walk', title:'Interval Run-Walk', dist:'35 min', detail:'Run 1 min / walk 1.5 min — walk breaks shortening slightly.'},
+    {id:'w2-2', date:'Thu, Sep 10', tag:'easy', tagLabel:'Easy', title:'Easy Walk', dist:'30 min', detail:'Keep it brisk, conversational effort.'},
+    {id:'w2-3', date:'Sat, Sep 12', tag:'long', tagLabel:'Long', title:'Long Run-Walk', dist:'7.5 km', detail:'Distance creeping up. This is about time on feet, not speed.'},
+    {id:'w2-4', date:'Sun, Sep 13', tag:'rest', tagLabel:'Optional', title:'Optional Hike', dist:'—', detail:'Same as last week — hike if fresh, rest if not.'},
+  ]},
+  { id:'w3', label:'Week 3', range:'Sep 14 – 20', peak:9, sessions:[
+    {id:'w3-1', date:'Tue, Sep 15', tag:'interval', tagLabel:'Run-walk', title:'Interval Run-Walk', dist:'35 min', detail:'Run 2 min / walk 1.5 min — running minute doubles.'},
+    {id:'w3-2', date:'Thu, Sep 17', tag:'easy', tagLabel:'Easy', title:'Easy Walk', dist:'30 min', detail:'Recovery pace, nothing structured.'},
+    {id:'w3-3', date:'Sat, Sep 19', tag:'long', tagLabel:'Long', title:'Long Run-Walk', dist:'9 km', detail:'Past the halfway mark to race distance. Notice pace, don\'t chase it.'},
+    {id:'w3-4', date:'Sun, Sep 20', tag:'rest', tagLabel:'Optional', title:'Optional Hike', dist:'—', detail:'Hike or rest, whichever your legs ask for.'},
+  ]},
+  { id:'w4', label:'Week 4', range:'Sep 21 – 27', peak:10.5, sessions:[
+    {id:'w4-1', date:'Tue, Sep 22', tag:'interval', tagLabel:'Run-walk', title:'Interval Run-Walk', dist:'40 min', detail:'Run 2 min / walk 1 min.'},
+    {id:'w4-2', date:'Thu, Sep 24', tag:'easy', tagLabel:'Easy', title:'Easy Walk', dist:'30 min', detail:'Keep it light before Saturday.'},
+    {id:'w4-3', date:'Sat, Sep 26', tag:'long', tagLabel:'Long', title:'Long Run-Walk', dist:'10.5 km', detail:'Two-thirds of race distance. Good week to dial in your pre/during-run food and drink.'},
+    {id:'w4-4', date:'Sun, Sep 27', tag:'rest', tagLabel:'Optional', title:'Optional Hike', dist:'—', detail:'Hike or rest.'},
+  ]},
+  { id:'w5', label:'Week 5', range:'Sep 28 – Oct 4', peak:12, sessions:[
+    {id:'w5-1', date:'Tue, Sep 29', tag:'interval', tagLabel:'Run-walk', title:'Interval Run-Walk', dist:'40 min', detail:'Run 3 min / walk 1 min.'},
+    {id:'w5-2', date:'Thu, Oct 1', tag:'easy', tagLabel:'Easy', title:'Easy Walk', dist:'30 min', detail:'Stay loose ahead of the peak long day.'},
+    {id:'w5-3', date:'Sat, Oct 3', tag:'long', tagLabel:'Long', title:'Long Run-Walk', dist:'12 km', detail:'Biggest week of the block. If it feels tough, that\'s normal — trust the taper right after this.'},
+    {id:'w5-4', date:'Sun, Oct 4', tag:'rest', tagLabel:'Rest', title:'Full Rest', dist:'—', detail:'Prioritise recovery this week — skip the hike.'},
+  ]},
+  { id:'w6', label:'Week 6', range:'Oct 5 – 11', peak:13.5, sessions:[
+    {id:'w6-1', date:'Tue, Oct 6', tag:'interval', tagLabel:'Run-walk', title:'Interval Run-Walk', dist:'40 min', detail:'Run 3 min / walk 1 min.'},
+    {id:'w6-2', date:'Thu, Oct 8', tag:'easy', tagLabel:'Easy', title:'Easy Walk (taper starts)', dist:'25 min', detail:'Volume starts coming down from here — trust it, don\'t add extra.'},
+    {id:'w6-3', date:'Sat, Oct 10', tag:'long', tagLabel:'Long', title:'Final Long Run-Walk', dist:'13.5 km', detail:'Your last big effort before race day. After this it\'s about arriving fresh, not fitter.'},
+    {id:'w6-4', date:'Sun, Oct 11', tag:'rest', tagLabel:'Rest', title:'Full Rest', dist:'—', detail:'Let the legs recover.'},
+  ]},
+  { id:'w7', label:'Race Week', range:'Oct 12 – 18', peak:2, sessions:[
+    {id:'w7-1', date:'Tue, Oct 13', tag:'easy', tagLabel:'Light', title:'Easy Shakeout', dist:'20 min', detail:'Run 2 min / walk 2 min, short and light. Legs loose, not tired.'},
+    {id:'w7-2', date:'Thu, Oct 15', tag:'easy', tagLabel:'Light', title:'Short Shakeout', dist:'15 min', detail:'Barely a workout — just keep the legs awake.'},
+    {id:'w7-3', date:'Sat, Oct 17', tag:'easy', tagLabel:'Light', title:'Pre-race Shakeout', dist:'15–20 min', detail:'Light jog-walk. Lay out your race kit and plan tomorrow\'s morning meal timing tonight.'},
+    {id:'w7-4', date:'Sun, Oct 18', tag:'race', tagLabel:'Race Day', title:'15K Race', dist:'15 km', detail:'Run what feels good, walk the rest. Aim to finish strong, not fast — walk through water stations, save something for the last 1–2km if you\'ve got it.'},
+  ]},
+];
+
+const STORAGE_KEY = 'training-log';
+let LOG = {};
+
+const checkSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="#0F1512" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+
+function fmtDaysLeft(){
+  const now = new Date();
+  const diff = Math.ceil((RACE_DATE - now) / (1000*60*60*24));
+  return diff;
+}
+
+function renderCountdown(){
+  const days = fmtDaysLeft();
+  document.getElementById('cd-days').textContent = days > 0 ? days : 0;
+  document.getElementById('cd-weeks').textContent = days > 0 ? Math.ceil(days/7) : 0;
+}
+
+function renderProfile(){
+  const svg = document.getElementById('profile-svg');
+  const maxKm = 15;
+  const w = 600, h = 110, pad = 14;
+  const n = WEEKS.length;
+  const stepX = (w - pad*2) / (n-1);
+  let points = [];
+  WEEKS.forEach((wk,i)=>{
+    const x = pad + i*stepX;
+    const y = h - pad - ((wk.peak/maxKm) * (h - pad*2));
+    points.push([x,y]);
+  });
+  let path = 'M ' + points.map(p=>p[0]+','+p[1]).join(' L ');
+  let area = path + ` L ${points[points.length-1][0]},${h-pad} L ${points[0][0]},${h-pad} Z`;
+
+  let dots = points.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="3.2" fill="${WEEKS[i].id==='w7' ? '#E8A33D' : '#7FAE7E'}"/>`).join('');
+  let labels = points.map((p,i)=>`<text x="${p[0]}" y="${h-2}" font-size="8" fill="#5E6E66" text-anchor="middle" font-family="JetBrains Mono, monospace">${WEEKS[i].id==='w0'?'ori':WEEKS[i].id==='w7'?'race':i}</text>`).join('');
+
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="fillgrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#7FAE7E" stop-opacity="0.35"/>
+        <stop offset="100%" stop-color="#7FAE7E" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <path d="${area}" fill="url(#fillgrad)"/>
+    <path d="${path}" fill="none" stroke="#7FAE7E" stroke-width="1.8"/>
+    ${dots}
+    ${labels}
+  `;
+}
+
+function renderWeeks(){
+  const container = document.getElementById('weeks');
+  container.innerHTML = '';
+  WEEKS.forEach((wk, idx)=>{
+    const done = wk.sessions.filter(s=>LOG[s.id]?.completed).length;
+    const el = document.createElement('div');
+    el.className = 'week' + (idx===0 ? ' open':'');
+    el.innerHTML = `
+      <div class="week-head" data-week="${wk.id}">
+        <div class="week-head-left">
+          <div class="week-num">${wk.label.toUpperCase()}</div>
+          <div class="week-range">${wk.range}</div>
+        </div>
+        <div style="display:flex;align-items:center;">
+          <div class="week-progress">${done}/${wk.sessions.length}</div>
+          <div class="chevron">▾</div>
+        </div>
+      </div>
+      <div class="week-body">
+        ${wk.sessions.map(s=>sessionHTML(s)).join('')}
+      </div>
+    `;
+    container.appendChild(el);
+  });
+
+  container.querySelectorAll('.week-head').forEach(h=>{
+    h.addEventListener('click', ()=>{
+      h.parentElement.classList.toggle('open');
+    });
+  });
+
+  container.querySelectorAll('.check').forEach(c=>{
+    c.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const id = c.dataset.id;
+      toggleSession(id);
+    });
+  });
+
+  container.querySelectorAll('.s-log input').forEach(inp=>{
+    inp.addEventListener('change', ()=>{
+      const id = inp.dataset.id;
+      const field = inp.dataset.field;
+      if(!LOG[id]) LOG[id] = {completed:true};
+      LOG[id][field] = inp.value;
+      saveLog();
+    });
+  });
+}
+
+function sessionHTML(s){
+  const entry = LOG[s.id] || {};
+  const done = !!entry.completed;
+  return `
+    <div class="session ${done?'done':''}">
+      <div class="check" data-id="${s.id}">${done?checkSVG:''}</div>
+      <div class="s-body">
+        <div class="s-meta">
+          <span class="s-day">${s.date}</span>
+          <span class="s-tag tag-${s.tag}">${s.tagLabel}</span>
+        </div>
+        <div class="s-title">${s.title} · ${s.dist}</div>
+        <div class="s-detail">${s.detail}</div>
+        <div class="s-log">
+          <input type="text" placeholder="Actual distance/time (optional)" data-id="${s.id}" data-field="note" value="${entry.note ? entry.note.replace(/"/g,'&quot;') : ''}">
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function toggleSession(id){
+  if(!LOG[id]) LOG[id] = {};
+  LOG[id].completed = !LOG[id].completed;
+  if(LOG[id].completed) LOG[id].completedAt = new Date().toISOString();
+  saveLog();
+  renderWeeks();
+  renderStats();
+}
+
+function showToast(msg, isError){
+  const t = document.getElementById('toast');
+  const txt = document.getElementById('toast-text');
+  txt.textContent = msg;
+  t.classList.toggle('error', !!isError);
+  t.classList.add('show');
+  clearTimeout(t._hideTimer);
+  t._hideTimer = setTimeout(()=>t.classList.remove('show'), 1600);
+}
+
+let saveTimer = null;
+let saveInFlight = false;
+let storageOK = true;
+
+function hasStorage(){
+  return typeof window !== 'undefined' && window.storage && typeof window.storage.set === 'function';
+}
+
+async function readStore(){
+  if(!hasStorage()) return null;
+  const attempts = [
+    () => window.storage.get(STORAGE_KEY, false),
+    () => window.storage.get(STORAGE_KEY),
+  ];
+  for(const fn of attempts){
+    try{
+      const res = await fn();
+      if(res == null) continue;
+      if(typeof res === 'string') return res;
+      if(typeof res.value === 'string') return res.value;
+      if(res.value && typeof res.value === 'object') return JSON.stringify(res.value);
+    }catch(e){ /* key may not exist yet */ }
+  }
+  return null;
+}
+
+async function attemptStore(payload){
+  if(!hasStorage()) return false;
+  const attempts = [
+    () => window.storage.set(STORAGE_KEY, payload, false),
+    () => window.storage.set(STORAGE_KEY, payload),
+  ];
+  for(const fn of attempts){
+    try{
+      await fn();
+      const check = await readStore();
+      if(check !== null) return true;
+    }catch(e){ /* try next signature */ }
+  }
+  return false;
+}
+
+async function saveLog(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(doSave, 250);
+}
+
+async function doSave(){
+  if(saveInFlight) return;
+  saveInFlight = true;
+  try{
+    const ok = await attemptStore(JSON.stringify(LOG));
+    setStorageState(ok);
+    if(ok) showToast('Saved');
+  }catch(e){
+    setStorageState(false);
+  }finally{
+    saveInFlight = false;
+  }
+  renderBackupCode();
+}
+
+function setStorageState(ok){
+  storageOK = ok;
+  const banner = document.getElementById('storage-banner');
+  if(banner) banner.style.display = ok ? 'none' : 'block';
+}
+
+async function loadLog(){
+  try{
+    const raw = await readStore();
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(parsed && typeof parsed === 'object'){ LOG = parsed; setStorageState(true); return; }
+    }
+    // Nothing stored yet — probe whether writing works at all.
+    const ok = await attemptStore(JSON.stringify(LOG));
+    setStorageState(ok);
+  }catch(e){
+    setStorageState(false);
+    LOG = {};
+  }
+}
+
+/* ---- Manual backup: works regardless of the storage API ---- */
+function renderBackupCode(){
+  const box = document.getElementById('backup-code');
+  if(box) box.value = JSON.stringify(LOG);
+}
+
+function setupBackup(){
+  document.getElementById('copy-backup').addEventListener('click', ()=>{
+    const box = document.getElementById('backup-code');
+    box.select();
+    box.setSelectionRange(0, 999999);
+    try{
+      document.execCommand('copy');
+      showToast('Backup code copied');
+    }catch(e){
+      showToast('Select the text and copy manually', true);
+    }
+  });
+
+  document.getElementById('restore-backup').addEventListener('click', ()=>{
+    const box = document.getElementById('backup-code');
+    try{
+      const parsed = JSON.parse(box.value);
+      if(parsed && typeof parsed === 'object'){
+        LOG = parsed;
+        saveLog();
+        renderWeeks();
+        renderStats();
+        showToast('Progress restored');
+      }else{
+        showToast('That code doesn\'t look right', true);
+      }
+    }catch(e){
+      showToast('That code doesn\'t look right', true);
+    }
+  });
+}
+
+function allSessions(){
+  return WEEKS.flatMap(w=>w.sessions.map(s=>({...s, weekId:w.id})));
+}
+
+function parseKm(distStr){
+  const m = distStr.match(/([\d.]+)\s*km/);
+  return m ? parseFloat(m[1]) : 0;
+}
+
+function renderStats(){
+  const sessions = allSessions();
+  const total = sessions.length;
+  const doneList = sessions.filter(s=>LOG[s.id]?.completed);
+  const done = doneList.length;
+  document.getElementById('stat-done').textContent = `${done}/${total}`;
+  document.getElementById('bar-done').style.width = `${total? (done/total*100):0}%`;
+
+  const km = doneList.reduce((sum,s)=>sum + parseKm(s.dist), 0);
+  document.getElementById('stat-km').textContent = km.toFixed(1);
+
+  let fullWeeks = 0;
+  WEEKS.forEach(w=>{
+    if(w.sessions.every(s=>LOG[s.id]?.completed)) fullWeeks++;
+  });
+  document.getElementById('stat-streak').textContent = fullWeeks;
+
+  const next = sessions.find(s=>!LOG[s.id]?.completed);
+  document.getElementById('stat-next').textContent = next ? next.date.split(',')[0] : '🎉';
+}
+
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('panel-'+t.dataset.tab).classList.add('active');
+  });
+});
+
+document.getElementById('reset-btn').addEventListener('click', async ()=>{
+  if(!confirm('Clear all logged sessions? This cannot be undone.')) return;
+  LOG = {};
+  await saveLog();
+  renderWeeks();
+  renderStats();
+});
+
+(async function init(){
+  renderCountdown();
+  renderProfile();
+  setupBackup();
+  await loadLog();
+  renderWeeks();
+  renderStats();
+  renderBackupCode();
+})();
+</script>
+</body>
+</html>
